@@ -1,14 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FontAwesomeIcon,
-//   fontAwesomeIcon,
 } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import {
   faGithub,
   faLinkedin,
-//   faMedium,
-//   faStackOverflow,
 } from "@fortawesome/free-brands-svg-icons";
 import { Box, HStack } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
@@ -17,7 +14,7 @@ import "./Style.css";
 const socials = [
   {
     icon: faEnvelope,
-    url: "mailto: umairkhan.2102@gmail.com",
+    url: "mailto:umairkhan.2102@gmail.com",
   },
   {
     icon: faGithub,
@@ -30,10 +27,38 @@ const socials = [
 ];
 
 const Header = () => {
-  const social = socials.map((socials) => {
+  const [scrolled, setScrolled] = useState(false);
+
+  const handleScroll = () => {
+    if (window.scrollY > 0) {
+      setScrolled(true);
+    } else {
+      setScrolled(false);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
+  const handleClick = (anchor) => () => {
+    const id = `${anchor}-section`;
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const socialLinks = socials.map((social) => {
     return (
-      <Link to={socials.url} className="links" target="_blank">
-        <FontAwesomeIcon icon={socials.icon}  size="lg"/>
+      <Link to={social.url} className="links" target="_blank">
+        <FontAwesomeIcon icon={social.icon} size="2x" />
       </Link>
     );
   });
@@ -44,10 +69,8 @@ const Header = () => {
       top={0}
       left={0}
       right={0}
-      translateY={0}
-      transitionProperty="transform"
-      transitionDuration=".3"
-      transitionTimingFunction="ease-in-out"
+      transform={`translateY(${scrolled ? -200 : 0}%)`} 
+      transition="transform 0.3s ease-in-out"
       background="#18181b"
     >
       <Box color="white" maxWidth="1280px" margin="0 auto">
@@ -57,9 +80,12 @@ const Header = () => {
           justifyContent={"space-between"}
           alignItems={"center"}
         >
-          <nav>{social}</nav>
+          <nav>{socialLinks}</nav>
           <nav>
-            <HStack spacing={8}>{/* {Projects and contact me} */}</HStack>
+            <HStack spacing={8}>
+              <Link to='/#projects' onClick={handleClick("projects")}>Projects</Link>
+              <Link to='/#contact-me' onClick={handleClick("contactme")}>Contact</Link>
+            </HStack>
           </nav>
         </HStack>
       </Box>
