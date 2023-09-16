@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   FontAwesomeIcon,
 } from "@fortawesome/react-fontawesome";
@@ -28,21 +28,31 @@ const socials = [
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
+  const prevScrollY = useRef(0);
 
   const handleScroll = () => {
-    if (window.scrollY > 0) {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > 0) {
       setScrolled(true);
     } else {
       setScrolled(false);
+    }
+    
+    if (currentScrollY > prevScrollY.current) {
+      prevScrollY.current = currentScrollY;
+      headerRef.current.style.transform = "translateY(-200px)";
+    } else {
+      prevScrollY.current = currentScrollY;
+      headerRef.current.style.transform = "translateY(0)";
     }
   };
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-    }
-  }, [])
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   const handleClick = (anchor) => () => {
     const id = `${anchor}-section`;
@@ -55,13 +65,15 @@ const Header = () => {
     }
   };
 
-  const socialLinks = socials.map((social) => {
+  const socialLinks = socials.map((social, index) => {
     return (
-      <Link to={social.url} className="links" target="_blank">
+      <Link to={social.url} className="links" target="_blank" key={index}>
         <FontAwesomeIcon icon={social.icon} size="2x" />
       </Link>
     );
   });
+
+  const headerRef = useRef(null);
 
   return (
     <Box
@@ -69,7 +81,7 @@ const Header = () => {
       top={0}
       left={0}
       right={0}
-      transform={`translateY(${scrolled ? -200 : 0}%)`} 
+      ref={headerRef}
       transition="transform 0.3s ease-in-out"
       background="#18181b"
     >
@@ -83,8 +95,12 @@ const Header = () => {
           <nav>{socialLinks}</nav>
           <nav>
             <HStack spacing={8}>
-              <Link to='/#projects' onClick={handleClick("projects")}>Projects</Link>
-              <Link to='/#contact-me' onClick={handleClick("contactme")}>Contact</Link>
+              <Link to="/#projects" onClick={handleClick("projects")}>
+                Projects
+              </Link>
+              <Link to="/#contact-me" onClick={handleClick("contactme")}>
+                Contact
+              </Link>
             </HStack>
           </nav>
         </HStack>
